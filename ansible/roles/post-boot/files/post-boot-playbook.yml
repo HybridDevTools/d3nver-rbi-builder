@@ -1,0 +1,46 @@
+- hosts: localhost
+  gather_facts: false
+  become: true
+
+  tasks:
+
+    - name: Install "microk8s" with option --classic
+      snap:
+        name: microk8s
+        channel: stable
+        classic: yes
+
+    - name: check if microk8s is running
+      shell: /snap/bin/microk8s.status --wait-ready | grep "microk8s is running"
+      register: microk8srunning
+
+    - name: enable microk8s dns addon
+      shell: /snap/bin/microk8s.enable dns
+      when: microk8srunning.stdout == 'microk8s is running'
+
+    - name: check if microk8s dns addon is installed
+      shell: /snap/bin/microk8s.status | grep 'dns' | grep 'enabled' | awk '{print $2}'
+      register: dnsaddonok
+      when: microk8srunning.stdout == 'microk8s is running'
+
+    - name: enable microk8s addons
+      shell: /snap/bin/microk8s.enable ingress registry
+      when: dnsaddonok.stdout == 'enabled'
+
+    - name: Add ldevuser to the microk8s group
+      user:
+        name: ldevuser
+        groups: microk8s
+        append: yes
+      when: microk8srunning.stdout == 'microk8s is running'
+
+    - name: Create default kube config for microk8s
+      shell: cat /var/snap/microk8s/current/credentials/client.config > /home/ldevuser/.kube/config-microk8s
+      become: yes
+      become_user: ldevuser
+
+    - name: Install "go" with option --classic
+      snap:
+        name: go
+        channel: stable
+        classic: yes

@@ -1,0 +1,82 @@
+- name: Create /opt/d3nver
+  file:
+    path: /opt/d3nver
+    state: directory
+
+- name: Create /opt/d3nver/post-boot
+  file:
+    path: /opt/d3nver/post-boot
+    state: directory
+
+- name: Install post-boot script
+  copy:
+    src: post-boot.sh
+    dest: /opt/d3nver/post-boot/post-boot.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install post-boot ansible.cfg
+  copy:
+    src: ansible.cfg
+    dest: /opt/d3nver/post-boot/ansible.cfg
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install post-boot playbook
+  copy:
+    src: post-boot-playbook.yml
+    dest: /opt/d3nver/post-boot/playbook.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install systemd post-boot.unit
+  copy:
+    src: post-boot.service
+    dest: /etc/systemd/system/post-boot.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: enable service post-boot and ensure it is not masked
+  systemd:
+    name: post-boot
+    enabled: yes
+    masked: no
+
+#- name: Clean motd folder
+#  shell: |
+#    set -o pipefail
+#    mv /etc/update-motd.d/00-header /tmp
+#    rm -f /etc/update-motd.d/*
+#    mv /etc/update-motd.d/00-header /tmp
+#  args:
+#    executable: /bin/bash
+#  changed_when: false
+
+- name: Copy logo
+  copy:
+    src: denver_logo.jpg
+    dest: /opt/d3nver/denver_logo.jpg
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure banner
+  copy:
+    src: banner
+    dest: /etc/update-motd.d/10-banner
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Remove default banner files
+  file:
+    path: /etc/update-motd.d/{{ item }}
+    state: absent
+  loop:
+    - 10-help-text
+    - 50-motd-news
+    - 92-unattended-upgrades

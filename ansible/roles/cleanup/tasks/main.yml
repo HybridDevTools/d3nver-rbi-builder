@@ -1,0 +1,25 @@
+- name: Remove dependencies that are no longer required
+  apt:
+    autoremove: yes
+
+- name: Remove useless packages from the cache
+  apt:
+    autoclean: yes
+
+- name: Clean apt temporary files
+  shell: rm -rf /var/cache/apt ; rm -rf /var/lib/apt/lists/*
+  args:
+    warn: false
+  changed_when: false
+
+- name: Clean useless files
+  shell: rm -rf /var/backup/* ; rm -f /var/spool/cups/c*
+  args:
+    warn: false
+  changed_when: false
+
+- name: Clear logs
+  shell: for log in `find /var/log -type f`; do > $log; done
+  args:
+    warn: false
+  changed_when: false

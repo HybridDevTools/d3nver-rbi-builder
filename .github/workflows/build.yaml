@@ -1,0 +1,60 @@
+name: D3nver RBI build
+
+# This workflow is triggered on pushes to the repository.
+on:
+  push:
+    # Sequence of patterns matched against refs/heads
+    branches:    
+      - beta         # Push events on master branch
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Source checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Installing requirements
+        run: sudo apt-get -qq update ; sudo apt-get --no-install-recommends install ansible-playbook aws debootstrap lbzip2 mount modprobe qemu-img qemu-nbd rsync sfdisk tune2fs -y
+
+      - name: Create release file
+        run: echo "`date '+%Y%m%d'`-ubuntu-bionic" > .release
+
+      - name: Fetch .release
+        uses: ./.github/actions/extract-version-from-file # Uses an action in the root directory
+        id: fetch_version
+        with:
+          version-file: .release
+
+      - name: Lint code
+        run: ansible-lint ansible/playbook.yml
+
+      - name: Build Beta
+        # run: sudo ./build.sh --create ubuntu:bionic --size 32 --push beta --clean
+        run: sudo ./build.sh --create ubuntu:bionic --size 32
+
+      - name: Gather commit message for changelog
+        run: git log -1 --pretty=%B --no-merges > .release-changes
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ steps.fetch_version.outputs.version }}
+          release_name: Release ${{ steps.fetch_version.outputs.version }}
+          bodyFile: .release-changes
+          draft: false
+          prerelease: false

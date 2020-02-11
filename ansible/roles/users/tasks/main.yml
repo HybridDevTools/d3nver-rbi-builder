@@ -1,0 +1,111 @@
+- name: change password for root user
+  user:
+    name: root
+    password: "{{ root_passwd }}"
+    shell: /bin/zsh
+
+- name: ZSH config for root
+  copy:
+    src: zshrc
+    dest: /root/.zshrc
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Install sudo
+  apt:
+    name: [
+      'sudo'
+    ]
+    state: present
+    install_recommends: no
+
+- name: ZSH config for all users
+  copy:
+    src: zshrc
+    dest: /etc/skel/.zshrc
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create Projects directory for all users
+  file:
+    path: /etc/skel/Projects
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create .kube directory for root user
+  file:
+    path: /root/.kube
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Kube config for root user
+  copy:
+    src: kube_config_microk8s
+    dest: /root/.kube/config-microk8s
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create .kube directory for all users
+  file:
+    path: /etc/skel/.kube
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Kube config for all users
+  copy:
+    src: kube_config_microk8s
+    dest: /etc/skel/.kube/config-microk8s
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable merge of kube config files
+  copy:
+    src: profile_kubectl.sh
+    dest: /etc/profile.d/99-kubectl.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Add ldev user ( ldevuser / ldevuser )
+  user:
+    name: ldevuser
+    password: $6$oK9tFT3V$K1hV6mHhvMULPNAibqZhKPeI6rq/Iuqts7bulW3RSzQD/J4tbI/Rre/LhHbSVA1P2SPMw.tC3QEXbpjUyqzcj/
+    groups: docker
+    shell: /bin/zsh
+
+- name: Create ldev user ssh directory
+  file:
+    path: /home/ldevuser/.ssh
+    state: directory
+    owner: ldevuser
+    group: ldevuser
+    mode: '0700'
+
+- name: Authorize ldevuser SSH key
+  copy:
+    src: ldevuser.pub
+    dest: /home/ldevuser/.ssh/authorized_keys
+    owner: ldevuser
+    group: ldevuser
+    mode: '0600'
+
+- name: Add sudoers for ldevuser
+  copy:
+    dest: /etc/sudoers.d/ldevuser
+    owner: root
+    group: root
+    mode: '0400'
+    content: |
+      Defaults: ldevuser !requiretty
+      ldevuser ALL=(ALL) NOPASSWD: ALL

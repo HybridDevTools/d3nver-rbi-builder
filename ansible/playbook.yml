@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: true
+  vars:
+    root_permit_login: True
+    root_passwd: "$6$RKhnfRkyoOtgDJv$MrmWNRyx07FnK2CQLVxDSDmFdvAsi.g44zxU.Mdept4tVMWsuue9VpquUJeyJ6e3GUQ.qr45SOq2HngEwfofu0"
+
+  pre_tasks:
+    - name: Verify Ansible meets version requirements.
+      assert:
+        that: "ansible_version.full is version_compare('2.8', '>=')"
+        msg: >
+          "You must update Ansible to at least 2.8 to use this script."
+
+  roles:
+    - common
+    - shares
+    - users
+    - post-boot
+    - cleanup

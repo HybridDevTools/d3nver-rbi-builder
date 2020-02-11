@@ -1,0 +1,39 @@
+- name: Install share daemons
+  apt:
+    name: [
+      'nfs-kernel-server',
+      'samba',
+    ]
+    state: present
+    install_recommends: no
+
+
+- name: Samba configuration for file sharing
+  copy:
+    src: smb.conf
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: enable samba service and ensure it is not masked
+  systemd:
+    name: smbd
+    enabled: yes
+    masked: no
+
+- name: NFS exports
+  copy:
+    src: nfs_exports
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Configure NFS mapping
+  copy:
+    src: idmapd.conf
+    dest: /etc/idmapd.conf
+    owner: root
+    group: root
+    mode: '0644'
