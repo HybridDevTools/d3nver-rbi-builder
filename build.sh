@@ -162,8 +162,8 @@ mkdir -p ${IMGSTOR}/${IMGVER}
 modprobe nbd max_part=4
 qemu-img create -f ${BOXFMT} ${IMGSTOR}/${IMGVER}/${BOXIMG} ${IMGSIZE}G
 qemu-nbd -c /dev/nbd0 -f ${BOXFMT} ${IMGSTOR}/${IMGVER}/${BOXIMG}
-
-sfdisk /dev/nbd0 << EOF
+sleep 2
+sfdisk /dev/nbd0 <<EOF
 ,1024000,82
 ;
 EOF
