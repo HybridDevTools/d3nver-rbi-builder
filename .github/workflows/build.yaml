@@ -28,11 +28,11 @@ jobs:
       - name: Installing requirements
         run: sudo apt-get -qq update ; sudo apt-get --no-install-recommends install ansible ansible-lint awscli debootstrap lbzip2 qemu-block-extra qemu-utils rsync util-linux e2fsprogs -y
 
-      - name: Loading nbd module
-        run: sudo modprobe nbd max_part=4; qemu-img create -f raw box.img 8G; sudo qemu-nbd -c /dev/nbd0 -f raw box.img
+      # - name: Loading nbd module
+      #   run: sudo modprobe nbd max_part=4; qemu-img create -f raw box.img 8G; sudo qemu-nbd -c /dev/nbd0 -f raw box.img
 
-      - name: Partitionning image
-        run: sudo sfdisk /dev/nbd0 << EOF\n,1024000,82\n;\nEOF
+      # - name: Partitionning image
+      #   run: sudo sfdisk /dev/nbd0 << EOF\n,1024000,82\n;\nEOF
 
       # - name: Create release file
       #   run: echo "`date '+%Y%m%d'`-ubuntu-bionic" > .release
@@ -46,9 +46,9 @@ jobs:
       # - name: Lint code
       #   run: ansible-lint ansible/playbook.yml
 
-      # - name: Build Beta
-      #   # run: sudo ./build.sh --create ubuntu:bionic --size 32 --push beta --clean
-      #   run: sudo ./build.sh --create ubuntu:bionic --size 8
+      - name: Build Beta
+        # run: sudo ./build.sh --create ubuntu:bionic --size 32 --push beta --clean
+        run: sudo ./build.sh --create ubuntu:bionic --size 8
 
       # - name: Gather commit message for changelog
       #   run: git log -1 --pretty=%B --no-merges > .release-changes
