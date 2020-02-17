@@ -29,7 +29,7 @@ jobs:
         run: sudo apt-get -qq update ; sudo apt-get --no-install-recommends install ansible ansible-lint awscli debootstrap lbzip2 qemu-block-extra qemu-utils rsync util-linux e2fsprogs -y
 
       - name: Loading nbd module
-        run: sudo modprobe nbd
+        run: sudo modprobe nbd max_part=4; qemu-img create -f raw box.img 8G
 
       # - name: Create release file
       #   run: echo "`date '+%Y%m%d'`-ubuntu-bionic" > .release
