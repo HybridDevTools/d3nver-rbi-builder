@@ -31,8 +31,8 @@ jobs:
       - name: Loading nbd module
         run: sudo modprobe nbd max_part=4; qemu-img create -f raw box.img 8G; sudo qemu-nbd -c /dev/nbd0 -f raw box.img
 
-      - name: Partitionning image
-        run: sudo sfdisk /dev/nbd0 << EOF\n,1024000,82\n;\nEOF
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v1
 
       # - name: Partitionning image
       #   run: sudo sfdisk /dev/nbd0 << EOF\n,1024000,82\n;\nEOF
