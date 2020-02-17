@@ -1,5 +1,11 @@
 # D3NVER BUILD ENVIRONMENT
 
+![D3nver BETA RBI build](https://github.com/HybridDevTools/d3nver-rbi-builder/workflows/D3nver%20BETA%20RBI%20build/badge.svg?branch=beta)
+![D3nver STABLE RBI build](https://github.com/HybridDevTools/d3nver-rbi-builder/workflows/D3nver%20STABLE%20RBI%20build/badge.svg?branch=stable)
+[![GitHub license](https://img.shields.io/github/license/HybridDevTools/d3nver-rbi-builder.svg)](https://github.com/HybridDevTools/d3nver-rbi-builder/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/HybridDevTools/d3nver-rbi-builder.svg)](https://GitHub.com/HybridDevTools/d3nver-rbi-builder/releases/)
+
+
 Requirements:
 
 - ansible 2.8+
