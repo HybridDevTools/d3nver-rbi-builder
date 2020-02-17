@@ -31,6 +31,9 @@ jobs:
       - name: Loading nbd module
         run: sudo modprobe nbd max_part=4; qemu-img create -f raw box.img 8G; sudo qemu-nbd -c /dev/nbd0 -f raw box.img
 
+      - name: Partitionning image
+        run: sfdisk /dev/nbd0 << EOF\n,1024000,82\n;\nEOF
+
       # - name: Create release file
       #   run: echo "`date '+%Y%m%d'`-ubuntu-bionic" > .release
 
