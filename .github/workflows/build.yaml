@@ -36,7 +36,7 @@ jobs:
         run: echo "`date '+%Y%m%d'`-ubuntu-bionic" > .release
 
       - name: Fetch .release
-        uses: ./.github/actions/extract-version-from-file # Uses an action in the root directory
+        uses: ./.github/actions/extract-version-from-file  # Uses an action in the root directory
         id: fetch_version
         with:
           version-file: .release
