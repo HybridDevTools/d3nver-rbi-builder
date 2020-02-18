@@ -45,7 +45,7 @@ jobs:
         run: ansible-lint ansible/playbook.yml
 
       - name: Build Beta
-        run: sudo ./build.sh --create ubuntu:bionic --size 32 --push beta
+        run: sudo ./build.sh --create ubuntu:bionic --size 32 --push beta --clean
 
       - name: Gather commit message for changelog
         run: git log -1 --pretty=%B --no-merges > .release-changes
