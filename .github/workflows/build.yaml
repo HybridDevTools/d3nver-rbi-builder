@@ -48,7 +48,7 @@ jobs:
         run: sudo ./build.sh --create ubuntu:bionic --size 32 --push beta --clean
 
       - name: Gather commit message for changelog
-        run: echo -e "============\nBETA release\n============" > .release-changes; git log -1 --pretty=%B --no-merges >> .release-changes
+        run: echo "BETA release" > .release-changes; git log -1 --pretty=%B --no-merges >> .release-changes
 
       - name: Create Release
         id: create_release
