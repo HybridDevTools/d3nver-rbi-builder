@@ -1,0 +1,23 @@
+stages:
+  - lint
+  - build-beta
+  - build-stable
+
+lint:
+  stage: lint
+  script:
+    - ansible-lint ansible/playbook.yml
+
+build-beta:
+  stage: build-beta
+  script:
+    - sudo ./build.sh --create ubuntu:bionic --size 32 --push beta --clean
+  only:
+    - beta
+
+build-stable:
+  stage: build-stable
+  script:
+    - sudo ./build.sh --create ubuntu:bionic --size 32 --push stable --clean
+  only:
+    - master

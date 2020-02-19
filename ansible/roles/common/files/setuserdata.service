@@ -1,0 +1,13 @@
+[Unit]
+Description=Set user data volume
+Requires=network.target
+After=network.target
+Before=nmbd.service
+
+[Service]
+ExecStart=/usr/local/bin/setuserdata
+TimeoutSec=30
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

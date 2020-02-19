@@ -1,0 +1,372 @@
+- name: Set /etc/hostname
+  copy:
+    dest: /etc/hostname
+    content: denver
+
+- name: Set /etc/hosts
+  copy:
+    dest: /etc/hosts
+    content: |
+      127.0.0.1    localhost
+
+- name: Force IPv4 for apt
+  copy:
+    dest: /etc/apt/apt.conf.d/99force-ipv4
+    content: |
+      Acquire::ForceIPv4 "true";
+
+- name: Predefined aliases
+  copy:
+    dest: /etc/profile.d/99-aliases.sh
+    content: |
+      alias halt="halt -p"
+
+- name: Default apt sources.list
+  copy:
+    dest: /etc/apt/sources.list
+    content: |
+      deb http://archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }} main restricted universe multiverse
+      deb http://archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }}-updates main restricted universe multiverse
+      deb http://security.ubuntu.com/ubuntu {{ ansible_distribution_release }}-security main restricted universe multiverse
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic'
+
+- name: Install apt dependencies
+  apt:
+    name:
+      [
+        "apt-transport-https",
+        "ca-certificates",
+        "dirmngr",
+        "software-properties-common",
+        "tzdata",
+      ]
+    state: present
+    install_recommends: no
+    update_cache: yes
+
+- name: Install GPG tools (Ubuntu Bionic)
+  apt:
+    name: ["gpg", "gpg-agent"]
+    state: present
+    install_recommends: no
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic'
+
+- name: enable Ansible repository
+  apt_repository:
+    repo: ppa:ansible/ansible
+
+- name: enable Git repository
+  apt_repository:
+    repo: ppa:git-core/ppa
+
+- name: enable Docker repository key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: enable Docker repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release|lower }} stable"
+    filename: docker
+    state: present
+
+- name: enable Kubectl repository key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: enable Kubectl repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://apt.kubernetes.io/ kubernetes-xenial main"
+    filename: kubectl
+    state: present
+
+- name: Set /etc/default/locale
+  copy:
+    src: locale_default
+    dest: /etc/default/locale
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Set /etc/localtime
+  file:
+    src: /usr/share/zoneinfo/UTC
+    dest: /etc/localtime
+    state: link
+
+- name: Distribution upgrade
+  apt:
+    update_cache: yes
+    install_recommends: no
+    upgrade: dist
+    autoremove: yes
+
+- name: Install base packages
+  apt:
+    name:
+      [
+        "ansible",
+        "ansible-lint",
+        "autojump",
+        "awscli",
+        "bash-completion",
+        "bzip2",
+        "cabextract",
+        "curl",
+        "crudini",
+        "debootstrap",
+        "direnv",
+        "docker-ce",
+        "docker-compose",
+        "dnsutils",
+        "git",
+        "haveged",
+        "htop",
+        "ifupdown",
+        "iotop",
+        "inetutils-ping",
+        'isc-dhcp-client',
+        "jp2a",
+        "jq",
+        "kbd",
+        "kubectl",
+        "lbzip2",
+        "less",
+        "libpam-systemd",
+        "lvm2",
+        "lzop",
+        "make",
+        "man",
+        "mlocate",
+        "nano",
+        "net-tools",
+        "openssh-client",
+        "openssh-server",
+        "openvpn",
+        "p7zip-full",
+        "pass",
+        "pigz",
+        "qemu-utils",
+        "rar",
+        "rsync",
+        "snapd",
+        "socat",
+        "strace",
+        "systemd",
+        "tree",
+        "ufw",
+        "unrar",
+        "unzip",
+        "uuid",
+        "vim",
+        "wget",
+        "zip",
+        "zsh",
+      ]
+    install_recommends: no
+    state: present
+
+- name: Configure default nanorc
+  copy:
+    src: nanorc
+    dest: /etc/nanorc
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Force Host SSH identity
+  copy:
+    src: "host_ssh/{{ item.name }}"
+    dest: "/etc/ssh/{{ item.name }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - { name: "moduli", mode: "0644" }
+    - { name: "ssh_config", mode: "0644" }
+    - { name: "ssh_host_ecdsa_key", mode: "0600" }
+    - { name: "ssh_host_ecdsa_key.pub", mode: "0644" }
+    - { name: "ssh_host_ed25519_key", mode: "0600" }
+    - { name: "ssh_host_ed25519_key.pub", mode: "0644" }
+    - { name: "ssh_host_rsa_key", mode: "0600" }
+    - { name: "ssh_host_rsa_key.pub", mode: "0644" }
+    - { name: "ssh_import_id", mode: "0644" }
+    - { name: "sshd_config", mode: "0644" }
+
+- name: Install Oh-My-ZSH
+  git:
+    repo: "https://github.com/robbyrussell/oh-my-zsh.git"
+    version: master
+    dest: /opt/oh-my-zsh
+    depth: 1
+
+- name: Deploy binary distributed tools (helm, terraform, ...)
+  copy:
+    src: "binaries/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - docker-credential-pass
+    - docker-credential-secretservice
+    - helm
+    - k9s
+    - kubectx
+    - kubens
+    - okteto
+    - popeye
+    - skaffold
+    - stern
+    - terraform
+
+- name: Install zsh-completions
+  git:
+    repo: https://github.com/zsh-users/zsh-completions
+    version: master
+    dest: /opt/oh-my-zsh/plugins/zsh-completions
+    depth: 1
+
+- name: Create /opt/oh-my-zsh/completions directory
+  file:
+    path: /opt/oh-my-zsh/completions
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Configure extra ZSH completions
+  copy:
+    src: "completions/{{ item }}"
+    dest: "/opt/oh-my-zsh/completions/_{{ item }}"
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - kubectx.zsh
+    - kubens.zsh
+
+- name: Configure ZSH Theme
+  copy:
+    src: d3nver.zsh-theme
+    dest: /opt/oh-my-zsh/themes/d3nver.zsh-theme
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install Kernel package (Ubuntu Bionic)
+  apt:
+    name: ["grub-pc", "linux-image-virtual-hwe-18.04-edge"]
+    state: present
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic'
+
+- name: Configure network interfaces
+  copy:
+    src: interface_{{ item }}
+    dest: /etc/network/interfaces.d/{{ item }}
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - lo
+    - eth0
+    - eth1
+
+- name: Add /usr/local/bin/setuserdata
+  copy:
+    src: setuserdata.sh
+    dest: /usr/local/bin/setuserdata
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install systemd setuserdata.service
+  copy:
+    src: setuserdata.service
+    dest: /etc/systemd/system/setuserdata.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: enable service setuserdata and ensure it is not masked
+  systemd:
+    name: setuserdata
+    enabled: yes
+    masked: no
+
+- name: set fs.inotify.max_user_watches
+  sysctl:
+    name: fs.inotify.max_user_watches
+    value: "524288"
+    state: present
+
+# override default grub config to disable network consistent naming
+# disable os prober so that only the base os is detected by grub-install
+- name: Install grub defaults
+  copy:
+    src: grub
+    dest: /etc/default/grub
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install grub boot loader
+  command: grub-install /dev/nbd0 --force
+  changed_when: false
+
+- name: Update initrd
+  command: update-grub
+  changed_when: false
+
+- name: Allow access to the pseudo Terminal inside the new guest OS
+  command: echo "pts/0" >> /etc/securetty
+  changed_when: false
+
+#- name: Change the systemd run level to the multi-user level
+#  command: systemctl set-default multi-user.target
+#  changed_when: false
+
+- name: Change the systemd run level to the multi-user level
+  systemd:
+    name: multi-user.target
+    enabled: yes
+    state: started
+    masked: no
+
+- name: Get partition UUID
+  shell: |
+    set -o pipefail
+    blkid -o export -s UUID /dev/nbd0p2 | grep -v 'DEVNAME'
+  args:
+    executable: /bin/bash
+  register: diskid
+  changed_when: false
+
+- name: Add the root mountpoint to the fstab file
+  copy:
+    dest: /etc/fstab
+    content: |
+      {{ diskid.stdout }} /      ext4 defaults,data=writeback,noatime,nodiratime 0 0
+
+- name: Fix grub.cfg
+  replace:
+    path: /boot/grub/grub.cfg
+    regexp: '\/dev\/nbd0p2'
+    replace: "{{ diskid.stdout }}"
+
+- name: Create /etc/docker
+  file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Add microk8s repository to Docker
+  copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "insecure-registries" : ["localhost:32000"]
+      }

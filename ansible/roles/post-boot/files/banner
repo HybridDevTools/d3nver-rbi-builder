@@ -1,0 +1,10 @@
+#!/bin/sh
+
+printf "\n"
+jp2a --width="32" --colors --invert /opt/d3nver/denver_logo.jpg
+printf " ____ _____                     \n"
+printf "|  _ \___ / _ ____   _____ _ __ \n"
+printf "| | | ||_ \| '_ \ \ / / _ \ '__|\n"
+printf "| |_| |__) | | | \ V /  __/ |   \n"
+printf "|____/____/|_| |_|\_/ \___|_|   \n"
+printf "\n"
