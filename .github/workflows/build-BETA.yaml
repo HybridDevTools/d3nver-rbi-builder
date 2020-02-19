@@ -44,7 +44,7 @@ jobs:
       - name: Lint code
         run: ansible-lint ansible/playbook.yml
 
-      - name: Build Beta
+      - name: Build BETA
         run: sudo ./build.sh --create ubuntu:bionic --size 32 --push beta --clean
 
       - name: Gather commit message for changelog
