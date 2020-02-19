@@ -48,7 +48,7 @@ jobs:
         run: sudo ./build.sh --create ubuntu:bionic --size 32 --push beta --clean
 
       - name: Gather commit message for changelog
-        run: echo "BETA release" > .release-changes; git log -1 --pretty=%B --no-merges >> .release-changes
+        run: git log -1 --pretty=%B --no-merges > .release-changes
 
       - name: Create Release
         id: create_release
@@ -57,7 +57,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
           tag_name: ${{ steps.fetch_version.outputs.version }}
-          release_name: Release ${{ steps.fetch_version.outputs.version }}
+          release_name: BETA Release ${{ steps.fetch_version.outputs.version }}
           bodyFile: .release-changes
           draft: false
           prerelease: false
