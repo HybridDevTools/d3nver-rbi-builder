@@ -5,7 +5,6 @@
 [![GitHub license](https://img.shields.io/github/license/HybridDevTools/d3nver-rbi-builder.svg)](https://github.com/HybridDevTools/d3nver-rbi-builder/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/HybridDevTools/d3nver-rbi-builder.svg)](https://GitHub.com/HybridDevTools/d3nver-rbi-builder/releases/)
 
-
 Requirements:
 
 - ansible 2.8+
