@@ -23,7 +23,7 @@ Building a 32Gb virtual hard disk image with Ubuntu Bionic (18.04) as base distr
 sudo ./build.sh -c ubuntu:bionic -s 32
 ```
 
-To push to the *BETA* channel, just accept the question at the end of the script or use :
+To push automatically to the *BETA* channel, just accept the question at the end of the script or use :
 
 ```bash
 # push to BETA
