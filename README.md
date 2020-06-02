@@ -5,7 +5,6 @@
 [![GitHub license](https://img.shields.io/github/license/HybridDevTools/d3nver-rbi-builder.svg)](https://github.com/HybridDevTools/d3nver-rbi-builder/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/HybridDevTools/d3nver-rbi-builder.svg)](https://GitHub.com/HybridDevTools/d3nver-rbi-builder/releases/)
 
-
 Requirements:
 
 - ansible 2.8+
@@ -23,7 +22,7 @@ Building a 32Gb virtual hard disk image with Ubuntu Bionic (18.04) as base distr
 sudo ./build.sh -c ubuntu:bionic -s 32
 ```
 
-To push to the *BETA* channel, just accept the question at the end of the script or use :
+To push automatically to the *BETA* channel, just accept the question at the end of the script or use :
 
 ```bash
 # push to BETA
