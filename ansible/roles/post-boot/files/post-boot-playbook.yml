@@ -27,6 +27,9 @@
       shell: /snap/bin/microk8s.enable ingress registry
       when: dnsaddonok.stdout == 'enabled'
 
+    - name: add kubectl alias
+      shell: /usr/bin/snap alias microk8s.kubectl kubectl
+
     - name: Add ldevuser to the microk8s group
       user:
         name: ldevuser

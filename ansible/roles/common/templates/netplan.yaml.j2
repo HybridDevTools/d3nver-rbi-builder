@@ -1,0 +1,12 @@
+network:
+  renderer: networkd
+  version: 2
+
+  ethernets:
+    eth0:
+      dhcp4: true
+
+    eth1:
+      addresses:
+      - {{ INSTANCE_IP}}/24
+  

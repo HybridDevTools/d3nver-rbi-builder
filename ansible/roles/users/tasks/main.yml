@@ -1,9 +1,3 @@
-- name: change password for root user
-  user:
-    name: root
-    password: "{{ root_passwd }}"
-    shell: /bin/zsh
-
 - name: ZSH config for root
   copy:
     src: zshrc
@@ -77,10 +71,9 @@
     group: root
     mode: '0755'
 
-- name: Add ldev user ( ldevuser / ldevuser )
+- name: Add ldev user
   user:
     name: ldevuser
-    password: $6$oK9tFT3V$K1hV6mHhvMULPNAibqZhKPeI6rq/Iuqts7bulW3RSzQD/J4tbI/Rre/LhHbSVA1P2SPMw.tC3QEXbpjUyqzcj/
     groups: docker
     shell: /bin/zsh
 

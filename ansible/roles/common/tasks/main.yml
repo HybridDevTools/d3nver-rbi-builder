@@ -8,12 +8,7 @@
     dest: /etc/hosts
     content: |
       127.0.0.1    localhost
-
-- name: Force IPv4 for apt
-  copy:
-    dest: /etc/apt/apt.conf.d/99force-ipv4
-    content: |
-      Acquire::ForceIPv4 "true";
+      {{ INSTANCE_IP }}  denver
 
 - name: Predefined aliases
   copy:
@@ -28,7 +23,7 @@
       deb http://archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }} main restricted universe multiverse
       deb http://archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }}-updates main restricted universe multiverse
       deb http://security.ubuntu.com/ubuntu {{ ansible_distribution_release }}-security main restricted universe multiverse
-  when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic'
+  when: ansible_distribution == 'Ubuntu'
 
 - name: Install apt dependencies
   apt:
@@ -36,20 +31,16 @@
       [
         "apt-transport-https",
         "ca-certificates",
+        "curl",
         "dirmngr",
+        "gnupg",
+        "lsb-release",
         "software-properties-common",
         "tzdata",
       ]
     state: present
     install_recommends: no
     update_cache: yes
-
-- name: Install GPG tools (Ubuntu Bionic)
-  apt:
-    name: ["gpg", "gpg-agent"]
-    state: present
-    install_recommends: no
-  when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic'
 
 - name: enable Ansible repository
   apt_repository:
@@ -68,17 +59,6 @@
   apt_repository:
     repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release|lower }} stable"
     filename: docker
-    state: present
-
-- name: enable Kubectl repository key
-  apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    state: present
-
-- name: enable Kubectl repository
-  apt_repository:
-    repo: "deb [arch=amd64] https://apt.kubernetes.io/ kubernetes-xenial main"
-    filename: kubectl
     state: present
 
 - name: Set /etc/default/locale
@@ -123,14 +103,12 @@
         "git",
         "haveged",
         "htop",
-        "ifupdown",
         "iotop",
         "inetutils-ping",
         'isc-dhcp-client',
         "jp2a",
         "jq",
         "kbd",
-        "kubectl",
         "lbzip2",
         "less",
         "libpam-systemd",
@@ -140,6 +118,7 @@
         "man",
         "mlocate",
         "nano",
+        "netplan.io",
         "net-tools",
         "openssh-client",
         "openssh-server",
@@ -203,23 +182,13 @@
 
 - name: Deploy binary distributed tools (helm, terraform, ...)
   copy:
-    src: "binaries/{{ item }}"
-    dest: "/usr/local/bin/{{ item }}"
+    src: "{{ item }}"
+    dest: "/usr/local/bin/{{ item | basename }}"
     owner: root
     group: root
     mode: "0755"
-  loop:
-    - docker-credential-pass
-    - docker-credential-secretservice
-    - helm
-    - k9s
-    - kubectx
-    - kubens
-    - okteto
-    - popeye
-    - skaffold
-    - stern
-    - terraform
+  with_fileglob:
+    - binaries/*
 
 - name: Install zsh-completions
   git:
@@ -255,23 +224,19 @@
     group: root
     mode: "0644"
 
-- name: Install Kernel package (Ubuntu Bionic)
+- name: Install Kernel package
   apt:
-    name: ["grub-pc", "linux-image-virtual-hwe-18.04-edge"]
+    name: ["grub-pc", "linux-image-virtual-hwe-20.04-edge"]
     state: present
-  when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic'
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'focal'
 
 - name: Configure network interfaces
-  copy:
-    src: interface_{{ item }}
-    dest: /etc/network/interfaces.d/{{ item }}
+  template:
+    src: netplan.yaml.j2
+    dest: /etc/netplan/netplan.yaml
     owner: root
     group: root
     mode: "0644"
-  loop:
-    - lo
-    - eth0
-    - eth1
 
 - name: Add /usr/local/bin/setuserdata
   copy:

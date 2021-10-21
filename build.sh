@@ -1,10 +1,10 @@
 #!/bin/bash
 
-VERSION=0.7
+VERSION=0.8
 DISTRO="ubuntu"
-RELEASE="bionic"
+RELEASE="focal"
 MIRROR=""
-IMGSIZE="8"
+IMGSIZE="16"
 IMGVER="`date '+%Y%m%d'`-$DISTRO-$RELEASE"
 BUILDDIR="./build"
 IMGSTOR="${BUILDDIR}/image"
@@ -28,8 +28,8 @@ Usage() {
 	echo
 	echo -e "\e[1mOptions\e[0m"
 	echo -e " -h, --help                        Show this help"
-	echo -e " -c, --create <DISTRO>:<RELEASE>   Create a new image (default: ubuntu:bionic)"
-	echo -e " -s, --size <SIZE>                 Size of the image in GB (default: 8)"
+	echo -e " -c, --create <DISTRO>:<RELEASE>   Create a new image (default: $DISTRO:$RELEASE)"
+	echo -e " -s, --size <SIZE>                 Size of the image in GB (default: $IMGSIZE)"
 	echo -e " -m, --mirror <MIRROR URL>         Mirror URL"
 	echo -e " -p, --push <beta|stable>          Automatically push to beta/stable channel when done"
 	echo -e " -x, --clean                       Clean build data once image is pushed"
